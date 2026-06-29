@@ -6,11 +6,14 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:migrate:create": "prisma migrate dev",
+    "db:migrate:turso": "for f in prisma/migrations/*/migration.sql; do echo \"Applying $f\"; turso db shell pionero < \"$f\"; done"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.8.0",
-    "@prisma/adapter-better-sqlite3": "^7.8.0",
+    "@libsql/client": "^0.17.4",
+    "@prisma/adapter-libsql": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "dotenv": "^17.4.2",
     "hono": "^4.12.27",
