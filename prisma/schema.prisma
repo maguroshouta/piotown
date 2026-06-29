@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Minute {
+  id              String           @id @default(uuid())
+  title           String
+  items           MinuteItems[]
+  date            DateTime
+  published       Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  minuteReactions MinuteReaction[]
+  minuteComments  MinuteComments[]
+}
+
+model MinuteItems {
+  id        String   @id @default(uuid())
+  minuteId  String
+  minute    Minute   @relation(fields: [minuteId], references: [id])
+  label     String
+  value     String
+  createdAt DateTime @default(now())
+}
+
+model MinuteComments {
+  id        String   @id @default(uuid())
+  minuteId  String
+  minute    Minute   @relation(fields: [minuteId], references: [id])
+  comment   String
+  createdAt DateTime @default(now())
+}
+
+model MinuteReaction {
+  id        String   @id @default(uuid())
+  minuteId  String
+  minute    Minute   @relation(fields: [minuteId], references: [id])
+  reaction  String
+  createdAt DateTime @default(now())
+}
+
+enum Kind {
+  TROUBLE
+  IDEA
+}
+
+model Seed {
+  id            String         @id @default(uuid())
+  kind          Kind
+  content       String
+  ipAddress     String
+  createdAt     DateTime       @default(now())
+  seedReactions SeedReaction[]
+}
+
+model SeedReaction {
+  id        String   @id @default(uuid())
+  seedId    String
+  seed      Seed     @relation(fields: [seedId], references: [id])
+  reaction  String
+  createdAt DateTime @default(now())
+}
