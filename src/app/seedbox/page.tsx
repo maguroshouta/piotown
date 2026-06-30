@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { CheckCircle2, Lightbulb, MessageSquareText, Send, Trash2 } from "lucide-react";
+import { CheckCircle2, Lightbulb, MessageSquareText, Send } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Dialog } from "radix-ui";
 
@@ -49,7 +49,6 @@ export default function SeedBox() {
   const [notes, setNotes] = useState<SeedNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [deletingNoteId, setDeletingNoteId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [isSaved, setIsSaved] = useState(false);
 
@@ -138,36 +137,6 @@ export default function SeedBox() {
       setError("保存できませんでした。入力内容を確認して、もう一度お試しください。");
     } finally {
       setIsSaving(false);
-    }
-  }
-
-  async function deleteNote(id: string) {
-    if (deletingNoteId) {
-      return;
-    }
-
-    setDeletingNoteId(id);
-    setError("");
-
-    try {
-      const response = await fetch(`/api/seeds/${id}`, {
-        method: "DELETE"
-      });
-
-      if (!response.ok) {
-        if (response.status === 403) {
-          setError("作成したときと同じIPアドレスからのみ削除できます。");
-          return;
-        }
-
-        throw new Error("Failed to delete seed");
-      }
-
-      setNotes((currentNotes) => currentNotes.filter((note) => note.id !== id));
-    } catch {
-      setError("削除できませんでした。時間をおいてもう一度お試しください。");
-    } finally {
-      setDeletingNoteId(null);
     }
   }
 
@@ -338,25 +307,13 @@ export default function SeedBox() {
                     transition={{ duration: 0.2, ease: "easeOut" }}
                     className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-200"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <span className="inline-flex rounded-md bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-700">
-                          {getKindLabel(note.kind)}
-                        </span>
-                        <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-gray-900">
-                          {note.content}
-                        </p>
-                      </div>
-                      <motion.button
-                        type="button"
-                        onClick={() => deleteNote(note.id)}
-                        disabled={deletingNoteId !== null}
-                        aria-label="削除"
-                        whileTap={deletingNoteId === null ? { scale: 0.94 } : undefined}
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-gray-400 transition enabled:hover:bg-gray-100 enabled:hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <Trash2 size={18} aria-hidden="true" />
-                      </motion.button>
+                    <div>
+                      <span className="inline-flex rounded-md bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-700">
+                        {getKindLabel(note.kind)}
+                      </span>
+                      <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-gray-900">
+                        {note.content}
+                      </p>
                     </div>
                   </motion.li>
                 ))}
