@@ -12,7 +12,7 @@ export default function Navigation() {
   }
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 min-h-24 border-t border-gray-200 bg-white px-2 pb-[env(safe-area-inset-bottom)] pt-2">
+    <nav className="w-full shrink-0 border-t border-gray-200 bg-white px-2 pb-[env(safe-area-inset-bottom)] pt-2">
       <ul className="mx-auto flex max-w-2xl items-center justify-center gap-8">
         <Link href="/">
           <li className="flex flex-col items-center justify-center">

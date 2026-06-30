@@ -172,7 +172,7 @@ export default function SeedBox() {
   }
 
   return (
-    <section className="px-5 pb-24 pt-6">
+    <section className="px-5 pb-6 pt-6">
       <div>
         <h2 className="text-3xl font-semibold leading-10 text-gray-900">なんでもボックス</h2>
         <p className="mt-2 text-base leading-7 text-gray-700">

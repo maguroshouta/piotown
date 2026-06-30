@@ -39,7 +39,7 @@ export default async function CommentsPage() {
   const comments = (await res.json()) as MinuteComment[];
 
   return (
-    <section className="px-5 pb-24 pt-6">
+    <section className="px-5 pb-6 pt-6">
       <div className="mb-6 flex items-center gap-3">
         <Link
           href="/"
