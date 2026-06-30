@@ -15,9 +15,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-[#f4f4f5]">
+      <body className="flex h-dvh flex-col overflow-hidden bg-[#f4f4f5]">
         <Header />
-        <main className="mx-auto w-full max-w-2xl">{children}</main>
+        <main className="mx-auto min-h-0 w-full max-w-2xl flex-1 overflow-y-auto">{children}</main>
         <Navigation />
       </body>
     </html>

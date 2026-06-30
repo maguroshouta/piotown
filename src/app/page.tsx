@@ -77,7 +77,7 @@ export default function Home() {
   }, []);
 
   return (
-    <section className="px-5 pb-32 pt-6">
+    <section className="px-5 pb-6 pt-6">
       <div className="mb-6 flex items-center justify-between gap-4">
         <h2 className="mt-1 text-2xl font-semibold text-gray-900">決まったこと</h2>
         <Link
