@@ -232,35 +232,6 @@ app.post("/seeds", zValidator("json", createSeedSchema, validationErrorResponse)
   return c.json(seed);
 });
 
-app.delete("/seeds/:id", zValidator("param", idParamSchema, validationErrorResponse), async (c) => {
-  const { id } = c.req.valid("param");
-  const ipAddress = getClientIp(c);
-
-  if (!ipAddress) {
-    return c.json({ message: "Unable to identify client IP address" }, 400);
-  }
-
-  const seed = await prisma.seed.findUnique({
-    where: { id },
-    select: { ipAddress: true }
-  });
-
-  if (!seed) {
-    return c.json({ message: "Seed not found" }, 404);
-  }
-
-  if (seed.ipAddress !== ipAddress) {
-    return c.json({ message: "You can only delete seeds created from the same IP address" }, 403);
-  }
-
-  await prisma.seed.delete({
-    where: { id }
-  });
-
-  return c.json({ id });
-});
-
 export const GET = handle(app);
 export const POST = handle(app);
 export const PUT = handle(app);
-export const DELETE = handle(app);
