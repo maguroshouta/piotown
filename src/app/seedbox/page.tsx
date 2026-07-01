@@ -1,52 +1,21 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
-import { CheckCircle2, Lightbulb, MessageSquareText, Send } from "lucide-react";
+import { SubmitEvent, useEffect, useState } from "react";
+import { CheckCircle2, Send } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Dialog } from "radix-ui";
 
-type SeedKind = "trouble" | "idea";
-
-type SeedNote = {
-  id: string;
-  kind: SeedKind;
-  content: string;
-  createdAt: string;
-};
-
 type SeedResponse = {
   id: string;
-  kind: "TROUBLE" | "IDEA";
+  tags: string;
   content: string;
   createdAt: string;
 };
 
-const kindOptions: Array<{
-  label: SeedKind;
-  icon: typeof MessageSquareText;
-}> = [
-  { label: "trouble", icon: MessageSquareText },
-  { label: "idea", icon: Lightbulb }
-];
-
-function getKindLabel(kind: SeedKind) {
-  return kind === "trouble" ? "困ってる！" : "やってみたい！";
-}
-
-function toSeedNote(seed: SeedResponse): SeedNote {
-  return {
-    id: seed.id,
-    kind: seed.kind === "IDEA" ? "idea" : "trouble",
-    content: seed.content,
-    createdAt: seed.createdAt
-  };
-}
-
 export default function SeedBox() {
-  const [kind, setKind] = useState<SeedKind>("trouble");
   const [text, setText] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [notes, setNotes] = useState<SeedNote[]>([]);
+  const [notes, setNotes] = useState<SeedResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
@@ -68,7 +37,7 @@ export default function SeedBox() {
         const seeds = (await response.json()) as SeedResponse[];
 
         if (isMounted) {
-          setNotes(seeds.map(toSeedNote));
+          setNotes(seeds);
         }
       } catch {
         if (isMounted) {
@@ -90,7 +59,7 @@ export default function SeedBox() {
 
   const canSubmit = text.trim().length > 0 && !isSaving;
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!canSubmit) {
@@ -117,18 +86,19 @@ export default function SeedBox() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          kind,
           content: trimmedText
         })
       });
 
       if (!response.ok) {
-        throw new Error("Failed to save seed");
+        const errorData = await response.json();
+        setError(errorData.message || "保存できませんでした。もう一度お試しください。");
+        return;
       }
 
       const seed = (await response.json()) as SeedResponse;
 
-      setNotes((currentNotes) => [toSeedNote(seed), ...currentNotes]);
+      setNotes((currentNotes) => [seed, ...currentNotes]);
       setText("");
       setIsDialogOpen(false);
       setIsSaved(true);
@@ -151,33 +121,6 @@ export default function SeedBox() {
 
       <form onSubmit={handleSubmit} className="mt-7 space-y-4">
         <div className="overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-gray-200">
-          <fieldset className="border-b border-gray-100 p-2">
-            <legend className="sr-only">書くこと</legend>
-            <div className="grid grid-cols-2 gap-2">
-              {kindOptions.map((option) => {
-                const Icon = option.icon;
-                const isSelected = kind === option.label;
-
-                return (
-                  <motion.button
-                    key={option.label}
-                    type="button"
-                    onClick={() => setKind(option.label)}
-                    whileTap={{ scale: 0.97 }}
-                    className={`flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-md border px-3 text-sm font-semibold transition ${
-                      isSelected
-                        ? "border-green-700 bg-green-50 text-green-800"
-                        : "border-transparent bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-                    }`}
-                  >
-                    <Icon size={18} aria-hidden="true" />
-                    {getKindLabel(option.label)}
-                  </motion.button>
-                );
-              })}
-            </div>
-          </fieldset>
-
           <label className="block">
             <span className="sr-only">内容</span>
             <textarea
@@ -237,12 +180,7 @@ export default function SeedBox() {
                   </Dialog.Description>
 
                   <div className="mt-4 rounded-md border border-gray-200 bg-gray-50 p-3">
-                    <span className="inline-flex rounded-md bg-white px-2 py-1 text-xs font-semibold text-gray-700 ring-1 ring-gray-200">
-                      {getKindLabel(kind)}
-                    </span>
-                    <p className="mt-3 max-h-48 overflow-y-auto whitespace-pre-wrap text-sm leading-6 text-gray-900">
-                      {text.trim()}
-                    </p>
+                    <p>{text.trim()}</p>
                   </div>
 
                   <div className="mt-5 space-y-3">
@@ -308,9 +246,16 @@ export default function SeedBox() {
                     className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-200"
                   >
                     <div>
-                      <span className="inline-flex rounded-md bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-700">
-                        {getKindLabel(note.kind)}
-                      </span>
+                      <div className="flex gap-2">
+                        {note.tags.split(",").map((tag) => (
+                          <span
+                            key={tag}
+                            className="inline-flex rounded-md bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-700"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
                       <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-gray-900">
                         {note.content}
                       </p>

@@ -48,16 +48,10 @@ model MinuteReaction {
   createdAt DateTime @default(now())
 }
 
-enum Kind {
-  TROUBLE
-  IDEA
-}
-
 model Seed {
   id            String         @id @default(uuid())
-  kind          Kind
+  tags          String
   content       String
-  ipAddress     String
   createdAt     DateTime       @default(now())
   seedReactions SeedReaction[]
 }

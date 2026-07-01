@@ -1,40 +1,20 @@
 "use client";
 
-import { useMemo, useState } from "react";
-
-type MinuteReaction = {
-  id: string;
-  reaction: ReactionEmoji;
-};
+import { useState } from "react";
 
 type MinuteReactionsProps = {
   minuteId: string;
-  reactions: MinuteReaction[];
+  reactions: Record<ReactionEmoji, number>;
 };
 
 type ReactionEmoji = (typeof reactionOptions)[number];
 
-const reactionOptions = ["👍", "🎉", "❤️", "👀"] as const;
+const reactionOptions = ["👍", "👎", "🎉", "❤️", "👀"] as const;
 
 export default function MinuteReactions({ minuteId, reactions }: MinuteReactionsProps) {
-  const [currentReactions, setCurrentReactions] = useState(reactions);
+  const [reactionCounts, setReactionCounts] = useState(reactions);
   const [pendingReaction, setPendingReaction] = useState<ReactionEmoji | null>(null);
   const [hasError, setHasError] = useState(false);
-
-  const reactionCounts = useMemo(() => {
-    return currentReactions.reduce<Record<ReactionEmoji, number>>(
-      (counts, reaction) => {
-        counts[reaction.reaction] += 1;
-        return counts;
-      },
-      {
-        "👍": 0,
-        "🎉": 0,
-        "❤️": 0,
-        "👀": 0
-      }
-    );
-  }, [currentReactions]);
 
   async function addReaction(reaction: ReactionEmoji) {
     if (pendingReaction) {
@@ -57,8 +37,10 @@ export default function MinuteReactions({ minuteId, reactions }: MinuteReactions
         throw new Error("Failed to add reaction");
       }
 
-      const minuteReaction = (await response.json()) as MinuteReaction;
-      setCurrentReactions((items) => [...items, minuteReaction]);
+      setReactionCounts((counts) => ({
+        ...counts,
+        [reaction]: counts[reaction] + 1
+      }));
     } catch {
       setHasError(true);
     } finally {
@@ -86,9 +68,7 @@ export default function MinuteReactions({ minuteId, reactions }: MinuteReactions
         ))}
       </div>
       {hasError && (
-        <p className="mt-2 text-sm leading-6 text-red-600">
-          リアクションを追加できませんでした。
-        </p>
+        <p className="mt-2 text-sm leading-6 text-red-600">リアクションを追加できませんでした。</p>
       )}
     </div>
   );

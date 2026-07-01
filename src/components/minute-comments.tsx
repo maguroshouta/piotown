@@ -1,24 +1,18 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { SubmitEvent, useState } from "react";
 import Link from "next/link";
 import { List, MessageCircle, Send, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Dialog } from "radix-ui";
 
-type MinuteComment = {
-  id: string;
-  comment: string;
-  createdAt: string;
-};
-
 type MinuteCommentsProps = {
   minuteId: string;
-  comments: MinuteComment[];
+  commentCount: number;
 };
 
-export default function MinuteComments({ minuteId, comments }: MinuteCommentsProps) {
-  const [currentComments, setCurrentComments] = useState(comments);
+export default function MinuteComments({ minuteId, commentCount }: MinuteCommentsProps) {
+  const [currentCommentCount, setCurrentCommentCount] = useState(commentCount);
   const [comment, setComment] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -27,7 +21,7 @@ export default function MinuteComments({ minuteId, comments }: MinuteCommentsPro
   const trimmedComment = comment.trim();
   const canSubmit = trimmedComment.length > 0 && !isSaving;
 
-  async function addComment(event: FormEvent<HTMLFormElement>) {
+  async function addComment(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!canSubmit) {
@@ -52,8 +46,8 @@ export default function MinuteComments({ minuteId, comments }: MinuteCommentsPro
         throw new Error("Failed to add comment");
       }
 
-      const minuteComment = (await response.json()) as MinuteComment;
-      setCurrentComments((items) => [minuteComment, ...items]);
+      await response.json();
+      setCurrentCommentCount((count) => count + 1);
       setComment("");
       setIsDialogOpen(false);
     } catch {
@@ -81,7 +75,7 @@ export default function MinuteComments({ minuteId, comments }: MinuteCommentsPro
         <List size={17} aria-hidden="true" />
         コメント一覧を見る
         <span className="rounded bg-white px-1.5 py-0.5 text-xs tabular-nums text-gray-500 ring-1 ring-gray-200">
-          {currentComments.length}
+          {currentCommentCount}
         </span>
       </Link>
 
