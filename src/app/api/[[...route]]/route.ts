@@ -120,8 +120,6 @@ async function safetyCheck(content: string) {
   });
 }
 
-const sleep = (msec: number) => new Promise((resolve) => setTimeout(resolve, msec));
-
 app.get("/minutes", async (c) => {
   const targetReactions = minuteReactionSchema.shape.reaction.options;
 
